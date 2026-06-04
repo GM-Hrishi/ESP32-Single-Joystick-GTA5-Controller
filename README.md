@@ -1,50 +1,39 @@
 # ESP32 Single Joystick GTA V Controller
 
-A fun project that turns a single ESP32-connected analog joystick into a virtual Xbox 360 controller for GTA V and other PC games.
+A fun project that turns a single ESP32-connected analog joystick into a virtual Xbox 360 controller for GTA V.
 
-The ESP32 reads joystick values and sends them over serial to Python. Python then creates a virtual Xbox controller using vgamepad and ViGEmBus, allowing Windows and GTA V to recognize it as a real game controller.
-
----
+This project demonstrates how an ESP32, Python, vgamepad and ViGEmBus can be combined to emulate a game controller using only a single analog joystick module.
 
 ## Important
 
-This project is intentionally designed around **one joystick module only**.
+This repository is intentionally limited to a single joystick module.
 
-It is not intended to replace a full Xbox or PlayStation controller and does not provide the complete functionality of a modern gamepad.
+It is not intended to replace a full Xbox or PlayStation controller.
 
-Features such as:
+A future repository may implement:
 
-* Camera control
-* Multiple face buttons
+* Dual analog sticks
+* Face buttons
 * D-Pad
 * Shoulder buttons
 * Full trigger controls
-* Dual analog sticks
-* Complete controller layouts
+* Complete gamepad functionality
 
-are outside the scope of this repository.
-
-This project exists purely as a fun experiment to see how far a single joystick and an ESP32 can be pushed.
-
-A separate repository may be created in the future for a more complete controller implementation.
-
----
+This project focuses only on creating a playable GTA V experience using a single joystick and its push button.
 
 ## Features
 
-* ESP32 based
 * Virtual Xbox 360 controller
-* Analog movement
+* Analog walking
 * Analog steering
-* Analog acceleration and braking
+* Analog acceleration
+* Analog braking and reverse
 * Walk Mode
 * Drive Mode
-* Joystick button mode switching
+* Mode switching using joystick button
 * Circular deadzone
-* Response curves
 * Input smoothing
-
----
+* Response curves
 
 ## Hardware Required
 
@@ -52,8 +41,6 @@ A separate repository may be created in the future for a more complete controlle
 * Analog Joystick Module
 * Jumper Wires
 * USB Cable
-
----
 
 ## Wiring
 
@@ -71,31 +58,9 @@ A separate repository may be created in the future for a more complete controlle
 
 ---
 
-## Software Required
+# Setup Guide
 
-### Python Packages
-
-```bash
-pip install pyserial vgamepad
-```
-
-### ViGEmBus Driver
-
-Download and install ViGEmBus:
-
-https://github.com/nefarius/ViGEmBus/releases
-
-Download:
-
-```text
-ViGEmBus_1.22.0_x64_x86_arm64.exe
-```
-
-Install it and reboot your PC.
-
----
-
-## Upload ESP32 Firmware
+## 1. Upload the ESP32 Sketch
 
 Open:
 
@@ -113,13 +78,11 @@ DOIT ESP32 DEVKIT V1
 
 Upload the sketch.
 
----
-
-## Verify ESP32 Output
+## 2. Verify ESP32 Output
 
 Open Serial Monitor.
 
-Baud Rate:
+Baud rate:
 
 ```text
 115200
@@ -129,8 +92,8 @@ You should see values similar to:
 
 ```text
 1650,1790,1
-1647,1785,1
-1655,1795,0
+1645,1785,1
+1652,1791,0
 ```
 
 Format:
@@ -139,37 +102,65 @@ Format:
 X,Y,SW
 ```
 
-Where:
+## 3. Install Python Dependencies
 
-* X = Horizontal axis
-* Y = Vertical axis
-* SW = Joystick button
+```bash
+pip install pyserial vgamepad
+```
 
----
+## 4. Install ViGEmBus
 
-## Running the Controller
+Download:
 
-Update the COM port inside:
+https://github.com/nefarius/ViGEmBus/releases
+
+Install:
+
+```text
+ViGEmBus_1.22.0_x64_x86_arm64.exe
+```
+
+Reboot Windows after installation.
+
+## 5. Find Your ESP32 COM Port
+
+Arduino IDE:
+
+```text
+Tools → Port
+```
+
+Example:
+
+```text
+COM7
+```
+
+## 6. Update the COM Port
+
+Open:
 
 ```text
 gta_xbox.py
 ```
 
-Example:
+Update:
 
 ```python
 ser = serial.Serial("COM7", 115200, timeout=1)
 ```
 
-Run:
+to match your ESP32 port.
+
+## 7. Start the Controller
+
+Open a terminal in the repository folder:
 
 ```bash
 python gta_xbox.py
 ```
 
----
-
-## Verify Virtual Controller
+## 8. Verify the Virtual Controller
 
 Press:
 
@@ -183,7 +174,7 @@ Run:
 joy.cpl
 ```
 
-You should see an Xbox 360 controller.
+An Xbox 360 controller should appear.
 
 Open Properties and verify:
 
@@ -192,19 +183,13 @@ Open Properties and verify:
 * Left
 * Right
 
-all respond correctly.
+all function correctly.
 
-If the controller behaves correctly in joy.cpl, the virtual controller is working properly.
+## 9. Disable Steam Input
 
----
+This step is important.
 
-## GTA V Setup
-
-### Important: Disable Steam Input
-
-During development it was discovered that Steam Input prevented GTA V from properly recognizing the virtual controller.
-
-Disable Steam Input before launching the game.
+Steam Input may prevent GTA V from recognizing the virtual controller correctly.
 
 Steam:
 
@@ -217,17 +202,29 @@ Library
 → Disable Steam Input
 ```
 
-Completely restart GTA V after changing this setting.
+Completely restart GTA V afterwards.
+
+## 10. Launch GTA V
+
+Before launching:
+
+* gta_xbox.py must be running
+* Controller must appear in joy.cpl
+* Steam Input must be disabled
+
+Launch GTA V.
+
+The game should automatically detect the virtual Xbox controller.
 
 ---
 
-## Using the Controller
+# Controls
 
-### Walk Mode
+## Walk Mode
 
 Default mode.
 
-The joystick behaves like the left analog stick of an Xbox controller.
+Joystick behaves as the Xbox left stick.
 
 Used for:
 
@@ -235,17 +232,9 @@ Used for:
 * Running
 * Character movement
 
----
-
-### Drive Mode
+## Drive Mode
 
 Press the joystick button.
-
-The script switches to:
-
-```text
-DRIVE MODE
-```
 
 Controls become:
 
@@ -256,102 +245,49 @@ Controls become:
 | Left      | Steer Left      |
 | Right     | Steer Right     |
 
-Press the joystick button again to return to:
-
-```text
-WALK MODE
-```
+Press the joystick button again to return to Walk Mode.
 
 ---
 
-## Troubleshooting
+# Troubleshooting
 
-### Controller works in joy.cpl but not in GTA V
+## Controller appears in joy.cpl but not GTA V
 
 1. Disable Steam Input.
 2. Close GTA V completely.
-3. Start `gta_xbox.py`.
-4. Confirm the controller appears in `joy.cpl`.
+3. Start gta_xbox.py.
+4. Verify controller appears in joy.cpl.
 5. Launch GTA V.
 
-GTA V typically detects controllers only if they are present when the game starts.
-
----
-
-### GTA V only shows keyboard prompts
+## GTA V only shows keyboard prompts
 
 Steam Input is probably still enabled.
 
-Disable it and restart GTA V.
+Disable it and restart the game.
 
----
+## ESP32 not detected
 
-### ESP32 not detected
-
-Check the COM port in Arduino IDE:
+Check:
 
 ```text
 Tools → Port
 ```
 
-Update the COM port in:
+and update the COM port in gta_xbox.py.
 
-```python
-serial.Serial("COMx", 115200)
-```
+## Controller Drifting
 
----
-
-### Controller Drifts
-
-Increase:
-
-```python
-DEADZONE = 3500
-```
-
-until the drift disappears.
+Increase the DEADZONE value in gta_xbox.py.
 
 ---
 
-## Repository Structure
+# Disclaimer
 
-```text
-ESP32-Single-Joystick-GTA5-Controller/
-│
-├── README.md
-├── esp32_joystick.ino
-├── gta_xbox.py
-└── image.png
-```
+This project is intended for learning, experimentation and fun.
 
----
+It is not intended to replace a real game controller.
 
-## Disclaimer
-
-This project was created for learning, experimentation and fun.
-
-It is not intended to replace a real controller and should be viewed as a proof-of-concept demonstrating how an ESP32 can be used to emulate an Xbox controller through Python and ViGEmBus.
-
-Controller feel, compatibility and performance will vary depending on joystick quality, calibration and game support.
-
----
-
-## Future Work
-
-Possible future improvements include:
-
-* Dual analog sticks
-* Camera control
-* Face buttons
-* D-Pad
-* Shoulder buttons
-* Trigger modules
-* Full controller implementation
-
-These features are intentionally outside the scope of this repository.
-
----
+Controller feel, compatibility and performance will vary depending on hardware quality, calibration and game support.
 
 ## License
 
